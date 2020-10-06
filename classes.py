@@ -1,4 +1,3 @@
-import weakref
 class Empresa():
 	EmpresaA = []
 	EmpresaB = []
@@ -12,13 +11,15 @@ class Empresa():
 	EmpresaJ = []
 	EmpresaK = []
 	def __init__(self):
-		self.nome=[]
+		#self.nome=[]
+		self.data = None
 		self.maxi = 0
 		self.min = None
 		self.med = None
-		#self.
 	def __str__(self):
-		return "Nome = {}".format(self.nome)
+		return "data = {} , Maximo = {} , Minimo = {} , Media = {}".format(self.data,self.maxi,self.min,self.med)
+	def __repr__(self):
+		return ("data = {}, Maximo = {} , Minimo = {} , Media = {}").format(self.data,self.maxi,self.min,self.med)
 #class Simulador():
 	#def __init__(self):
 		#self.saldo = None
