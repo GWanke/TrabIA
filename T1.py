@@ -22,8 +22,6 @@ def readInput():
 				e.med = int(''.join(map(str,listaux[96:108])))
 				listaux *= 0
 				print (e.data)
-
-
 	k.close()
 readInput()
 #for maxi in classes.Empresa():
