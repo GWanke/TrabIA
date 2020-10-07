@@ -1,8 +1,6 @@
 import classes
 import random
 from random import randint
-#def CalculoFitness():
-
 #def Selecao():
 #def Mutacao():
 #def Genetico():
@@ -17,11 +15,8 @@ def readData(linha):
 	e.med = int(''.join(map(str,linha[96:108])))
 	return e
 def readInput():
-		#linha=1
 	with open("teste.TXT", "r") as k:
 		for line in k:
-			#for i in line.split():
-				#print(i)
 			listaux = list(line) 
 			if (line[27:39] == "FII XP GAIA "):          #1
 				e=readData(listaux)
@@ -59,7 +54,6 @@ def geraPopulacaoInicio():
 	aux = []
 	carteira = []
 	popMax = 20
-	dia = "20140102" ## dia 02 de janeiro de 2014
 	for pop in range (popMax):
 		rngA = randint(0,100) 
 		rngB = randint(0,100)
@@ -89,7 +83,7 @@ def geraPopulacaoInicio():
 		aux = [round(compraA,2),round(compraB,2),round(compraC,2),round(compraD,2),round(compraE,2),round(compraF,2),round(compraG,2),round(compraH,2),round(compraI,2),round(compraJ,2)]
 		carteira.append(aux)
 	return carteira
-
+#def CalculoFitness():
 def main():
 	carteira = []
 	readInput()
