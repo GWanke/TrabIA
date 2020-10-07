@@ -1,7 +1,6 @@
 import classes
 import random
 from random import randint
-#def Selecao():
 #def Mutacao():
 #def Genetico():
 #def Agente():
@@ -150,12 +149,38 @@ def CalculoFitness(carteira):
 		somatorioGanho=0
 	return sorted(range(len(ganho)),key = lambda k: ganho[k])[::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
 
+def Selecao(index):
+	#selecao por torneio, com k=3.
+	selecionados = []
+	counter = 0
+	excluidos = []
+	while (counter<6):
+		rng1=random.choice([i for i in range(0,19) if i not in selecionados])
+		rng2=random.choice([i for i in range(0,19) if i not in selecionados])
+		rng3=random.choice([i for i in range(0,19) if i not in selecionados])		
+		for elemento in index:
+			if rng1 == elemento:
+				indexSelecionado = rng1
+				break
+			elif rng2 == elemento:
+				indexSelecionado = rng2
+				break
+			elif rng3 == elemento:
+				indexSelecionado = rng3
+				break
+		excluidos.append(indexSelecionado)
+		selecionados.append(indexSelecionado)
+		counter = counter +1
+		indexSelecionado = 0
+	return (selecionados)		
 def main():
 	carteira = []
 	tex = []
+	nda = []
 	readInput()
 	carteira = geraPopulacaoInicio()
 	tex = CalculoFitness(carteira)
-	print(tex)
+	nda = Selecao(tex)
+	print(nda)
 if __name__ == '__main__':
 	main()
