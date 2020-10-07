@@ -127,7 +127,9 @@ def CalculoMedia(opc):
 
 def CalculoFitness(carteira):
 	ganho = []
-	#print(carteira)
+	aux = []
+	#necessita retornar as carteiras de maneira ordenada, com base nos dados de 2014 e 2015, pelo valor da media das empresas.  
+	#da pra otimizar com hash o calculo medio.
 	for empresa in carteira:
 		for valor in empresa:
 			ganhoA = valor * CalculoMedia(1)
@@ -140,17 +142,20 @@ def CalculoFitness(carteira):
 			ganhoH = valor * CalculoMedia(8)
 			ganhoI = valor * CalculoMedia(9)
 			ganhoJ = valor * CalculoMedia(10)
-		somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ  
-		porcentual = somatorioGanho / 1000 # percentual baseado em 100.000 de saldo.
-		ganho.append(round(porcentual))
-		print(ganho,somatorioGanho)
-	somatorioGanho=0
-	#print(ganho.somatorioGanho)
+			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
+			aux.append(round(somatorioGanho))
+		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)),2)
+		ganho.append(z)
+		aux *= 0
+		somatorioGanho=0
+	return sorted(range(len(ganho)),key = lambda k: ganho[k])[::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
 
 def main():
 	carteira = []
+	tex = []
 	readInput()
 	carteira = geraPopulacaoInicio()
-	CalculoFitness(carteira)
+	tex = CalculoFitness(carteira)
+	print(tex)
 if __name__ == '__main__':
 	main()
