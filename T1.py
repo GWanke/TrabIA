@@ -148,12 +148,33 @@ def CalculoFitness(carteira):
 		aux *= 0
 		somatorioGanho=0
 	return sorted(range(len(ganho)),key = lambda k: ganho[k])[::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
-
+def CalculoFitness2(filho):
+		aux = []
+		for valor in filho:
+			ganhoA = valor * CalculoMedia(1)
+			ganhoB = valor * CalculoMedia(2)
+			ganhoC = valor * CalculoMedia(3)
+			ganhoD = valor * CalculoMedia(4)
+			ganhoE = valor * CalculoMedia(5)
+			ganhoF = valor * CalculoMedia(6)
+			ganhoG = valor * CalculoMedia(7)
+			ganhoH = valor * CalculoMedia(8)
+			ganhoI = valor * CalculoMedia(9)
+			ganhoJ = valor * CalculoMedia(10)
+			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
+		return somatorioGanho
+		aux *= 0
+def ComparaPop(index,carteira,individuo):
+	inv = index[::-1]
+	piorind = carteira[inv[0]]
+	if CalculoFitness2(piorind) < CalculoFitness2(individuo):
+		print("caiu")
+		carteira.pop(19)
+		carteira.append(individuo) 
 def Selecao(index):
 	#selecao por torneio, com k=3.
 	selecionados = []
 	counter = 0
-	excluidos = []
 	while (counter<6):
 		rng1=random.choice([i for i in range(0,19) if i not in selecionados])
 		rng2=random.choice([i for i in range(0,19) if i not in selecionados])
@@ -168,19 +189,39 @@ def Selecao(index):
 			elif rng3 == elemento:
 				indexSelecionado = rng3
 				break
-		excluidos.append(indexSelecionado)
 		selecionados.append(indexSelecionado)
 		counter = counter +1
 		indexSelecionado = 0
-	return (selecionados)		
+	return selecionados
+def Crossover(selecionados,carteira,index):
+	# numero de filhos gerados por geracao = 2
+	# numero de pais para crossover = 2 -> numero de selecionados precisa ser par. Percorrer lista de selecionados ate o final, de dois em dois.
+	#print(selecionados,carteira)
+	while (len(selecionados)>0):
+		filho1 = []
+		filho2 = []
+		aux = []
+		pai1 = carteira[selecionados[0]]
+		pai2 = carteira[selecionados[1]]
+		for x in range (0,10):
+			if x <= 5:
+				filho1.append(pai1[x])
+				filho2.append(pai2[x])
+			else:
+				filho1.append(pai2[x])
+				filho2.append(pai1[x])
+		selecionados.pop(0)
+		selecionados.pop(0)
+		ComparaPop(index,carteira,filho1)
+		ComparaPop(index,carteira,filho2)
 def main():
 	carteira = []
-	tex = []
-	nda = []
+	indices = []
+	selecionados = []
 	readInput()
 	carteira = geraPopulacaoInicio()
-	tex = CalculoFitness(carteira)
-	nda = Selecao(tex)
-	print(nda)
+	indices = CalculoFitness(carteira)
+	selecionados = Selecao(indices)
+	Crossover(selecionados,carteira,indices)
 if __name__ == '__main__':
 	main()
