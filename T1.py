@@ -141,7 +141,7 @@ def CalculoFitness(carteira):
 			ganhoH = valor * CalculoMedia(8)
 			ganhoI = valor * CalculoMedia(9)
 			ganhoJ = valor * CalculoMedia(10)
-			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
+			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados. 
 			aux.append(round(somatorioGanho))
 		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)),2)
 		ganho.append(z)
@@ -165,11 +165,8 @@ def CalculoFitness2(filho):
 		return somatorioGanho
 		aux *= 0
 def ComparaPop(index,carteira,individuo):
-	inv = index[::-1]
-	piorind = carteira[inv[0]]
-	if CalculoFitness2(piorind) < CalculoFitness2(individuo):
-		print("caiu")
-		carteira.pop(19)
+	if CalculoFitness2(carteira[index[19]]) < CalculoFitness2(individuo):
+		carteira.pop(index[19])
 		carteira.append(individuo) 
 def Selecao(index):
 	#selecao por torneio, com k=3.
@@ -214,14 +211,23 @@ def Crossover(selecionados,carteira,index):
 		selecionados.pop(0)
 		ComparaPop(index,carteira,filho1)
 		ComparaPop(index,carteira,filho2)
+def Mutacao(carteira):
+	probabilidade=randint(0,100)
+	if (probabilidade<10):
+		print("caiu!")
 def main():
 	carteira = []
 	indices = []
 	selecionados = []
+	counter=0
 	readInput()
 	carteira = geraPopulacaoInicio()
-	indices = CalculoFitness(carteira)
-	selecionados = Selecao(indices)
-	Crossover(selecionados,carteira,indices)
+	while (counter<=2):
+		indices = CalculoFitness(carteira)
+		selecionados = Selecao(indices)
+		Crossover(selecionados,carteira,indices)
+		Mutacao(carteira)
+		counter =counter +1
+		print(indices)
 if __name__ == '__main__':
 	main()
