@@ -142,32 +142,43 @@ def CalculoFitness(carteira):
 			ganhoI = valor * CalculoMedia(9)
 			ganhoJ = valor * CalculoMedia(10)
 			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados. 
-			aux.append(round(somatorioGanho))
-		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)),2)
+			aux.append(somatorioGanho)
+		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)))
 		ganho.append(z)
 		aux *= 0
 		somatorioGanho=0
+	#print(ganho)
 	return sorted(range(len(ganho)),key = lambda k: ganho[k])[::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
 def CalculoFitness2(filho):
-		aux = []
-		for valor in filho:
-			ganhoA = valor * CalculoMedia(1)
-			ganhoB = valor * CalculoMedia(2)
-			ganhoC = valor * CalculoMedia(3)
-			ganhoD = valor * CalculoMedia(4)
-			ganhoE = valor * CalculoMedia(5)
-			ganhoF = valor * CalculoMedia(6)
-			ganhoG = valor * CalculoMedia(7)
-			ganhoH = valor * CalculoMedia(8)
-			ganhoI = valor * CalculoMedia(9)
-			ganhoJ = valor * CalculoMedia(10)
-			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
-		return somatorioGanho
-		aux *= 0
-def ComparaPop(index,carteira,individuo):
-	if CalculoFitness2(carteira[index[19]]) < CalculoFitness2(individuo):
-		carteira.pop(index[19])
-		carteira.append(individuo) 
+	aux = []
+	ganho = []
+	for valor in filho:
+		ganhoA = valor * CalculoMedia(1)
+		ganhoB = valor * CalculoMedia(2)
+		ganhoC = valor * CalculoMedia(3)
+		ganhoD = valor * CalculoMedia(4)
+		ganhoE = valor * CalculoMedia(5)
+		ganhoF = valor * CalculoMedia(6)
+		ganhoG = valor * CalculoMedia(7)
+		ganhoH = valor * CalculoMedia(8)
+		ganhoI = valor * CalculoMedia(9)
+		ganhoJ = valor * CalculoMedia(10)
+		somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
+		aux.append(somatorioGanho)
+	z = (reduce(lambda x, y: x + y, aux) / float(len(aux)))
+	ganho.append(z)
+	somatorioGanho =0
+	aux *= 0
+	return ganho
+		
+def ComparaPop(index,carteira,filhos):
+	for x in range(0,5):
+		#print(CalculoFitness2(carteira[index[19]]) ,CalculoFitness2(filhos[x]))
+		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filhos[x]):
+			#print("entro")
+			carteira.pop(index[19])
+			#print(len(carteira))
+			carteira.append(filhos[x]) 
 def Selecao(index):
 	#selecao por torneio, com k=3.
 	selecionados = []
@@ -194,6 +205,8 @@ def Crossover(selecionados,carteira,index):
 	# numero de filhos gerados por geracao = 2
 	# numero de pais para crossover = 2 -> numero de selecionados precisa ser par. Percorrer lista de selecionados ate o final, de dois em dois.
 	#print(selecionados,carteira)
+	filhos = []
+	aux = []
 	while (len(selecionados)>0):
 		filho1 = []
 		filho2 = []
@@ -201,20 +214,38 @@ def Crossover(selecionados,carteira,index):
 		pai1 = carteira[selecionados[0]]
 		pai2 = carteira[selecionados[1]]
 		for x in range (0,10):
-			if x <= 5:
+			if x <= 4:
 				filho1.append(pai1[x])
 				filho2.append(pai2[x])
 			else:
 				filho1.append(pai2[x])
 				filho2.append(pai1[x])
+		filhos.append(filho1)
+		filhos.append(filho2)
 		selecionados.pop(0)
 		selecionados.pop(0)
-		ComparaPop(index,carteira,filho1)
-		ComparaPop(index,carteira,filho2)
-def Mutacao(carteira):
+	return filhos
+def Mutacao(filhos):
+	#10% de chance de mutacao. Caso ocorra,ira alterar o valor dos genes dos filhos.
+	#Mutara o individuo em dois genes, que deverao obedecer a regra da soma equivalente a um do individuo.Em outras palavras, serao dois novos valores com a mesma soma.
 	probabilidade=randint(0,100)
-	if (probabilidade<10):
-		print("caiu!")
+	if probabilidade<=20:
+		index = randint(0,2)
+		rng1,rng2 = random.sample(range(0,10),2) 
+		if index == 0:
+			somapeso = filhos[0][rng1] + filhos[0][rng2]
+			filhos[0][rng1] = round(random.uniform(0,filhos[0][rng1]),2)
+			filhos[0][rng2] = round(somapeso - filhos[0][rng1],2)  
+		elif index == 1:
+			somapeso = filhos[1][rng1] + filhos[1][rng2]
+			filhos[1][rng1] = round(random.uniform(0,filhos[1][rng1]),2)
+			filhos[1][rng2] = round(somapeso - filhos[1][rng1],2)
+		else:
+			somapeso = filhos[2][rng1] + filhos[2][rng2]
+			filhos[2][rng1] = round(random.uniform(0,filhos[2][rng1]),2)
+			filhos[2][rng2] = round(somapeso - filhos[2][rng1],2)
+	return filhos
+
 def main():
 	carteira = []
 	indices = []
@@ -222,12 +253,17 @@ def main():
 	counter=0
 	readInput()
 	carteira = geraPopulacaoInicio()
-	while (counter<=2):
+	while (counter<=25):
 		indices = CalculoFitness(carteira)
+		#if counter ==0:
+			#print ("Melhor fitness inicio",CalculoFitness2(carteira[indices[0]]))
+		#elif counter == 25:
+			#print ("Melhor fitness final",CalculoFitness2(carteira[indices[0]]))
 		selecionados = Selecao(indices)
-		Crossover(selecionados,carteira,indices)
-		Mutacao(carteira)
-		counter =counter +1
 		print(indices)
+		filhos=Crossover(selecionados,carteira,indices)
+		filhosmuta=Mutacao(filhos)
+		ComparaPop(indices,carteira,filhosmuta)
+		counter =counter +1
 if __name__ == '__main__':
 	main()
