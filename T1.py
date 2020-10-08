@@ -17,34 +17,34 @@ def readInput():
 	with open("teste.TXT", "r") as k:
 		for line in k:
 			listaux = list(line) 
-			if (line[27:39] == "FII XP GAIA "):          #1
+			if (line[27:39] == "METAL LEVE  "):          #1
 				e=readData(listaux)
 				classes.Empresa().EmpresaA.append(e)     
-			elif (line[27:39] == "FIP XP OMEGA"):        #2
+			elif (line[27:39] == "WEG         "):        #2
 				e=readData(listaux)		 
 				classes.Empresa().EmpresaB.append(e)     
-			elif (line[27:39] == "CAIXAETFXBOV"):        #3
+			elif (line[27:39] == "NATURA      "):        #3
 				e=readData(listaux)
 				classes.Empresa().EmpresaC.append(e)
-			elif (line[27:39] == "FII GAVEA   "):        #4
+			elif (line[27:39] == "SABESP      "):        #4
 				e=readData(listaux)
 				classes.Empresa().EmpresaD.append(e)
-			elif (line[27:39] == "EZTEC       "):  
+			elif (line[27:39] == "SID NACIONAL"):  
 				e=readData(listaux)
 				classes.Empresa().EmpresaE.append(e)
-			elif (line[27:39] == "GUARARAPES  "):        #6
+			elif (line[27:39] == "PFIZER      "):        #6
 				e=readData(listaux)
 				classes.Empresa().EmpresaF.append(e)
-			elif (line[27:39] == "GGBRE       "):        #7
+			elif (line[27:39] == "LOJAS RENNER"):        #7
 				e=readData(listaux)
 				classes.Empresa().EmpresaG.append(e)
-			elif (line[27:39] == "GERDAU      "):        #8
+			elif (line[27:39] == "CIELO       "):        #8
 				e=readData(listaux)
 				classes.Empresa().EmpresaH.append(e)
-			elif (line[27:39] == "FLEURY      "):        #9
+			elif (line[27:39] == "TELEF BRASIL"):        #9
 				e=readData(listaux)
 				classes.Empresa().EmpresaI.append(e)
-			elif (line[27:39] == "EMAE        "):        #10
+			elif (line[27:39] == "GRENDENE    "):        #10
 				e=readData(listaux)
 				classes.Empresa().EmpresaJ.append(e)
 			listaux *= 0
@@ -127,6 +127,7 @@ def CalculoMedia(opc):
 def CalculoFitness(carteira):
 	ganho = []
 	aux = []
+	listasorted = []
 	#necessita retornar as carteiras de maneira ordenada, com base nos dados de 2014 e 2015, pelo valor da media das empresas.  
 	#da pra otimizar com hash o calculo medio.
 	for empresa in carteira:
@@ -145,10 +146,16 @@ def CalculoFitness(carteira):
 			aux.append(somatorioGanho)
 		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)))
 		ganho.append(z)
+		z=0
 		aux *= 0
 		somatorioGanho=0
-	#print(ganho)
-	return sorted(range(len(ganho)),key = lambda k: ganho[k])[::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
+	v = sorted(carteira,key=lambda k:CalculoFitness2(k))[::-1]
+	#print CalculoFitness2(v[0])
+	for item in v:
+		indexv = carteira.index(item)
+		listasorted.append(indexv)
+	#return sorted(range(len(ganho)),key = lambda k: max(CalculoFitness(k))) [::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
+	return listasorted
 def CalculoFitness2(filho):
 	aux = []
 	ganho = []
@@ -164,21 +171,16 @@ def CalculoFitness2(filho):
 		ganhoI = valor * CalculoMedia(9)
 		ganhoJ = valor * CalculoMedia(10)
 		somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados.
-		aux.append(somatorioGanho)
-	z = (reduce(lambda x, y: x + y, aux) / float(len(aux)))
-	ganho.append(z)
+	z = somatorioGanho / len(filho)
 	somatorioGanho =0
-	aux *= 0
-	return ganho
+	return z
 		
 def ComparaPop(index,carteira,filhos):
-	for x in range(0,5):
-		#print(CalculoFitness2(carteira[index[19]]) ,CalculoFitness2(filhos[x]))
-		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filhos[x]):
-			#print("entro")
+	for filho in filhos: 
+		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filho):
 			carteira.pop(index[19])
-			#print(len(carteira))
-			carteira.append(filhos[x]) 
+			carteira.append(filho)
+	return carteira 
 def Selecao(index):
 	#selecao por torneio, com k=3.
 	selecionados = []
@@ -250,20 +252,28 @@ def main():
 	carteira = []
 	indices = []
 	selecionados = []
-	counter=0
+	respostaIgualRepetida=0
+	numRep=0
 	readInput()
 	carteira = geraPopulacaoInicio()
-	while (counter<=25):
-		indices = CalculoFitness(carteira)
-		#if counter ==0:
-			#print ("Melhor fitness inicio",CalculoFitness2(carteira[indices[0]]))
-		#elif counter == 25:
-			#print ("Melhor fitness final",CalculoFitness2(carteira[indices[0]]))
-		selecionados = Selecao(indices)
-		print(indices)
-		filhos=Crossover(selecionados,carteira,indices)
+	vantigo =  CalculoFitness2(carteira[0])
+	print "fitness antigo da melhor solucao {} (que corresponde a carteira): {}".format(vantigo,carteira[0])  
+	while(respostaIgualRepetida<=2 and numRep<10):
+		respostaAntiga = CalculoFitness(carteira)
+		selecionados = Selecao(respostaAntiga)
+		filhos=Crossover(selecionados,carteira,respostaAntiga)
 		filhosmuta=Mutacao(filhos)
-		ComparaPop(indices,carteira,filhosmuta)
-		counter =counter +1
+		carteira=ComparaPop(respostaAntiga,carteira,filhosmuta)
+		novaResposta = CalculoFitness(carteira)
+		print(respostaAntiga,novaResposta)
+		if (respostaAntiga==novaResposta):
+			respostaIgualRepetida +=1
+		else:
+			respostaIgualRepetida==0
+		numRep += 1
+	vnovo =  CalculoFitness2(carteira[0])
+	porcentagem = (((vnovo - vantigo) / vantigo) * 100)
+	print "fitness novo da melhor solucao{},(que corresponde a carteira): {}".format(vnovo,carteira[0])
+	print "melhora de {}%".format(porcentagem)
 if __name__ == '__main__':
 	main()
