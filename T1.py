@@ -184,24 +184,27 @@ def ComparaPop(index,carteira,filhos):
 def Selecao(index):
 	#selecao por torneio, com k=3.
 	selecionados = []
+	aux = []
 	counter = 0
-	while (counter<6):
-		rng1=random.choice([i for i in range(0,19) if i not in selecionados])
-		rng2=random.choice([i for i in range(0,19) if i not in selecionados])
-		rng3=random.choice([i for i in range(0,19) if i not in selecionados])		
-		for elemento in index:
-			if rng1 == elemento:
-				indexSelecionado = rng1
-				break
-			elif rng2 == elemento:
-				indexSelecionado = rng2
-				break
-			elif rng3 == elemento:
-				indexSelecionado = rng3
-				break
-		selecionados.append(indexSelecionado)
-		counter = counter +1
-		indexSelecionado = 0
+	rngl = []
+	indexSelecionado = -1
+	excluidos = []
+	print "index" ,(index)
+	while (len(selecionados)<6):
+		print(selecionados) 
+		for _ in range(0,2):
+			rng=random.choice([i for i in range(0,19) if i not in selecionados and i not in rngl])
+			rngl.append(rng)		
+		for posicao,item in enumerate(index):
+			for aleatorio in rngl:
+				if aleatorio == item:
+					print "entrou o item {} na posicao {}".format(item,posicao)
+					aux.append(posicao)
+		indexSelecionado=min(aux)
+		if indexSelecionado not in selecionados:
+			selecionados.append(indexSelecionado)
+		aux *=0
+		rngl *= 0
 	return selecionados
 def Crossover(selecionados,carteira,index):
 	# numero de filhos gerados por geracao = 2
@@ -257,23 +260,27 @@ def main():
 	readInput()
 	carteira = geraPopulacaoInicio()
 	vantigo =  CalculoFitness2(carteira[0])
-	print "fitness antigo da melhor solucao {} (que corresponde a carteira): {}".format(vantigo,carteira[0])  
-	while(respostaIgualRepetida<=2 and numRep<10):
+	#print "fitness antigo da melhor solucao {} (que corresponde a carteira {})".format(vantigo,carteira[0])  
+	while(respostaIgualRepetida<=2 and numRep<50):
 		respostaAntiga = CalculoFitness(carteira)
+		#print "Antigo" ,(CalculoFitness2(carteira[respostaAntiga[0]]),carteira[respostaAntiga[0]])
+		#print "Antigo" ,(CalculoFitness(carteira)/20)
 		selecionados = Selecao(respostaAntiga)
 		filhos=Crossover(selecionados,carteira,respostaAntiga)
 		filhosmuta=Mutacao(filhos)
 		carteira=ComparaPop(respostaAntiga,carteira,filhosmuta)
 		novaResposta = CalculoFitness(carteira)
-		print(respostaAntiga,novaResposta)
+		#print "Antigo" ,(CalculoFitness(carteira)/20)
+		#print "Novo" ,(CalculoFitness2(carteira[novaResposta[0]]),carteira[novaResposta[0]])
+		#print(respostaAntiga,novaResposta)
 		if (respostaAntiga==novaResposta):
 			respostaIgualRepetida +=1
 		else:
 			respostaIgualRepetida==0
 		numRep += 1
 	vnovo =  CalculoFitness2(carteira[0])
-	porcentagem = (((vnovo - vantigo) / vantigo) * 100)
-	print "fitness novo da melhor solucao{},(que corresponde a carteira): {}".format(vnovo,carteira[0])
-	print "melhora de {}%".format(porcentagem)
+	#porcentagem = (((vnovo - vantigo) / vantigo) * 100)
+	#print "fitness novo da melhor solucao{},(que corresponde a carteira): {}".format(vnovo,carteira[0])
+	#print "melhora de {}%".format(porcentagem)
 if __name__ == '__main__':
 	main()
