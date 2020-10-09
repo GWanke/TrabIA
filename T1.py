@@ -125,36 +125,11 @@ def CalculoMedia(opc):
 	return med
 
 def CalculoFitness(carteira):
-	ganho = []
-	aux = []
 	listasorted = []
-	#necessita retornar as carteiras de maneira ordenada, com base nos dados de 2014 e 2015, pelo valor da media das empresas.  
-	#da pra otimizar com hash o calculo medio.
-	for empresa in carteira:
-		for valor in empresa:
-			ganhoA = valor * CalculoMedia(1)
-			ganhoB = valor * CalculoMedia(2)
-			ganhoC = valor * CalculoMedia(3)
-			ganhoD = valor * CalculoMedia(4)
-			ganhoE = valor * CalculoMedia(5)
-			ganhoF = valor * CalculoMedia(6)
-			ganhoG = valor * CalculoMedia(7)
-			ganhoH = valor * CalculoMedia(8)
-			ganhoI = valor * CalculoMedia(9)
-			ganhoJ = valor * CalculoMedia(10)
-			somatorioGanho = ganhoA + ganhoB + ganhoC + ganhoD + ganhoE + ganhoF + ganhoG + ganhoH + ganhoI + ganhoJ #somatorio do lucro medio,baseado nos dados. 
-			aux.append(somatorioGanho)
-		z = (reduce(lambda x, y: x + y, aux) / float(len(aux)))
-		ganho.append(z)
-		z=0
-		aux *= 0
-		somatorioGanho=0
 	v = sorted(carteira,key=lambda k:CalculoFitness2(k))[::-1]
-	#print CalculoFitness2(v[0])
 	for item in v:
 		indexv = carteira.index(item)
 		listasorted.append(indexv)
-	#return sorted(range(len(ganho)),key = lambda k: max(CalculoFitness(k))) [::-1]         #Retorna uma lista de indices, com o primeiro elemento correspondendo a carteira que possui um melhor valor medio bruto.
 	return listasorted
 def CalculoFitness2(filho):
 	aux = []
@@ -177,7 +152,7 @@ def CalculoFitness2(filho):
 		
 def ComparaPop(index,carteira,filhos):
 	for filho in filhos: 
-		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filho):
+		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filho) and filho not in carteira:
 			carteira.pop(index[19])
 			carteira.append(filho)
 	return carteira 
@@ -189,17 +164,15 @@ def Selecao(index):
 	rngl = []
 	indexSelecionado = -1
 	excluidos = []
-	print "index" ,(index)
-	while (len(selecionados)<6):
-		print(selecionados) 
-		for _ in range(0,2):
+	while (len(selecionados)<6): 
+		for _ in range(0,3):
 			rng=random.choice([i for i in range(0,19) if i not in selecionados and i not in rngl])
 			rngl.append(rng)		
 		for posicao,item in enumerate(index):
 			for aleatorio in rngl:
 				if aleatorio == item:
-					print "entrou o item {} na posicao {}".format(item,posicao)
 					aux.append(posicao)
+		print(aux)
 		indexSelecionado=min(aux)
 		if indexSelecionado not in selecionados:
 			selecionados.append(indexSelecionado)
@@ -264,13 +237,11 @@ def main():
 	while(respostaIgualRepetida<=2 and numRep<50):
 		respostaAntiga = CalculoFitness(carteira)
 		#print "Antigo" ,(CalculoFitness2(carteira[respostaAntiga[0]]),carteira[respostaAntiga[0]])
-		#print "Antigo" ,(CalculoFitness(carteira)/20)
 		selecionados = Selecao(respostaAntiga)
 		filhos=Crossover(selecionados,carteira,respostaAntiga)
 		filhosmuta=Mutacao(filhos)
 		carteira=ComparaPop(respostaAntiga,carteira,filhosmuta)
 		novaResposta = CalculoFitness(carteira)
-		#print "Antigo" ,(CalculoFitness(carteira)/20)
 		#print "Novo" ,(CalculoFitness2(carteira[novaResposta[0]]),carteira[novaResposta[0]])
 		#print(respostaAntiga,novaResposta)
 		if (respostaAntiga==novaResposta):
