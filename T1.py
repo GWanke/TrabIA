@@ -52,7 +52,7 @@ def readInput():
 def geraPopulacaoInicio():
 	aux = []
 	carteira = []
-	popMax = 20
+	popMax = 15
 	for pop in range (popMax):
 		rngA = randint(0,100) 
 		rngB = randint(0,100)
@@ -152,52 +152,65 @@ def CalculoFitness2(filho):
 		
 def ComparaPop(index,carteira,filhos):
 	for filho in filhos: 
-		if CalculoFitness2(carteira[index[19]]) <= CalculoFitness2(filho) and filho not in carteira:
-			carteira.pop(index[19])
+		if CalculoFitness2(carteira[index[len(index)-1]]) <= CalculoFitness2(filho) and filho not in carteira:
+			carteira.pop(index[len(index)-1])
 			carteira.append(filho)
 	return carteira 
 def Selecao(index):
 	#selecao por torneio, com k=3.
 	selecionados = []
 	aux = []
-	counter = 0
 	rngl = []
 	indexSelecionado = -1
 	excluidos = []
-	while (len(selecionados)<6): 
+	pop = int(len(index) * 0.3)
+	if pop %2 != 0:
+		pop =pop +1
+	while (len(selecionados)<pop): 
 		for _ in range(0,3):
-			rng=random.choice([i for i in range(0,19) if i not in selecionados and i not in rngl])
+			rng=random.choice([i for i in range(0,len(index)-1) if i not in selecionados and i not in rngl])
 			rngl.append(rng)		
 		for posicao,item in enumerate(index):
 			for aleatorio in rngl:
 				if aleatorio == item:
 					aux.append(posicao)
-		print(aux)
 		indexSelecionado=min(aux)
 		if indexSelecionado not in selecionados:
 			selecionados.append(indexSelecionado)
 		aux *=0
 		rngl *= 0
 	return selecionados
-def Crossover(selecionados,carteira,index):
+def Crossover(selecionados,carteira):
 	# numero de filhos gerados por geracao = 2
 	# numero de pais para crossover = 2 -> numero de selecionados precisa ser par. Percorrer lista de selecionados ate o final, de dois em dois.
-	#print(selecionados,carteira)
+	# Corte na pos random.
 	filhos = []
-	aux = []
 	while (len(selecionados)>0):
 		filho1 = []
 		filho2 = []
-		aux = []
+		ac1=0
+		ac2=0
+		fator1=0
+		fator2=0
 		pai1 = carteira[selecionados[0]]
 		pai2 = carteira[selecionados[1]]
+		rng = randint(0,9)
 		for x in range (0,10):
-			if x <= 4:
-				filho1.append(pai1[x])
-				filho2.append(pai2[x])
+			if x<rng:
+				ac1 += pai1[x]
+				ac2 += pai2[x]
 			else:
-				filho1.append(pai2[x])
-				filho2.append(pai1[x])
+				ac1 += pai2[x]
+				ac2 += pai1[x]
+		fator1 = round(1/ac1,2)
+		fator2 = round(1/ac2,2)
+		for i in range (0,10):
+			if x<rng:
+				filho1.append(pai1[i]*fator1)
+				filho2.append(pai2[i]*fator2)
+			else:
+				filho1.append(pai2[i]*fator1)
+				filho2.append(pai2[i]*fator2)
 		filhos.append(filho1)
 		filhos.append(filho2)
 		selecionados.pop(0)
@@ -207,51 +220,58 @@ def Mutacao(filhos):
 	#10% de chance de mutacao. Caso ocorra,ira alterar o valor dos genes dos filhos.
 	#Mutara o individuo em dois genes, que deverao obedecer a regra da soma equivalente a um do individuo.Em outras palavras, serao dois novos valores com a mesma soma.
 	probabilidade=randint(0,100)
-	if probabilidade<=20:
-		index = randint(0,2)
-		rng1,rng2 = random.sample(range(0,10),2) 
-		if index == 0:
-			somapeso = filhos[0][rng1] + filhos[0][rng2]
-			filhos[0][rng1] = round(random.uniform(0,filhos[0][rng1]),2)
-			filhos[0][rng2] = round(somapeso - filhos[0][rng1],2)  
-		elif index == 1:
-			somapeso = filhos[1][rng1] + filhos[1][rng2]
-			filhos[1][rng1] = round(random.uniform(0,filhos[1][rng1]),2)
-			filhos[1][rng2] = round(somapeso - filhos[1][rng1],2)
-		else:
-			somapeso = filhos[2][rng1] + filhos[2][rng2]
-			filhos[2][rng1] = round(random.uniform(0,filhos[2][rng1]),2)
-			filhos[2][rng2] = round(somapeso - filhos[2][rng1],2)
+	tamfilhos=len(filhos)-1
+	if probabilidade<15:
+		index = randint(0,tamfilhos)
+		rng1,rng2 = random.sample(range(0,10),2)
+		somapeso = filhos[index][rng1] + filhos[index][rng2]
+		filhos[index][rng1] = round(random.uniform(0,filhos[index][rng1]),2)
+		filhos[index][rng2] = round(somapeso - filhos[index][rng1],2)
 	return filhos
-
-def main():
+def genetico():
 	carteira = []
-	indices = []
-	selecionados = []
 	respostaIgualRepetida=0
 	numRep=0
+	soma=0
+	med=0
 	readInput()
 	carteira = geraPopulacaoInicio()
 	vantigo =  CalculoFitness2(carteira[0])
-	#print "fitness antigo da melhor solucao {} (que corresponde a carteira {})".format(vantigo,carteira[0])  
-	while(respostaIgualRepetida<=2 and numRep<50):
+	for i in carteira:
+		soma = soma + CalculoFitness2(i)
+	med = soma/len(carteira)
+	print "media antiga : " ,med
+	while(respostaIgualRepetida<=15 and numRep<100):
+		indices = []
+		selecionados = []
+		filhos = []
+		filhosmuta = []
 		respostaAntiga = CalculoFitness(carteira)
-		#print "Antigo" ,(CalculoFitness2(carteira[respostaAntiga[0]]),carteira[respostaAntiga[0]])
+		#print "RA",(respostaAntiga)
+		print CalculoFitness2(carteira[respostaAntiga[0]]),respostaAntiga
 		selecionados = Selecao(respostaAntiga)
-		filhos=Crossover(selecionados,carteira,respostaAntiga)
+		#print "selecionados", selecionados
+		filhos=Crossover(selecionados,carteira)
+		#print "filhos", filhos
 		filhosmuta=Mutacao(filhos)
+		#print "filhosmuta", filhosmuta
 		carteira=ComparaPop(respostaAntiga,carteira,filhosmuta)
+		#print "carteira", carteira
 		novaResposta = CalculoFitness(carteira)
-		#print "Novo" ,(CalculoFitness2(carteira[novaResposta[0]]),carteira[novaResposta[0]])
-		#print(respostaAntiga,novaResposta)
+		#print "nR", novaResposta
+		print CalculoFitness2(carteira[novaResposta[0]]),novaResposta
 		if (respostaAntiga==novaResposta):
 			respostaIgualRepetida +=1
 		else:
 			respostaIgualRepetida==0
 		numRep += 1
-	vnovo =  CalculoFitness2(carteira[0])
-	#porcentagem = (((vnovo - vantigo) / vantigo) * 100)
-	#print "fitness novo da melhor solucao{},(que corresponde a carteira): {}".format(vnovo,carteira[0])
-	#print "melhora de {}%".format(porcentagem)
+	soma=0
+	med=0
+	for it in carteira:
+		soma = soma + CalculoFitness2(it)
+	med = soma/len(carteira)
+	print "media nova = " , med
+def main():
+	genetico()
 if __name__ == '__main__':
 	main()
